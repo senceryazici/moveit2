@@ -1,0 +1,21 @@
+name: cppcheck
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  cppcheck:
+    runs-on: ubuntu-latest
+    steps: 
+      - run: |
+          sudo apt update
+          sudo apt-get -y install cppcheck
+      - name: run cppcheck
+        run: |
+          cppcheck --language=c++ --template="{file}:{line}:{column}: {severity}: {message}" . 1> /dev/null 2> cppcheck_errors.txt
+          ERROR_TEXT=$(cat cppcheck_errors.txt)
+          if [[ $(wc -l cppcheck_errors.txt | awk '{print $1}') -gt 0 ]]; then echo "::error ::$ERROR_TEXT"; fi
